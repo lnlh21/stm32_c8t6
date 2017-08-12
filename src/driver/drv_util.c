@@ -59,7 +59,7 @@ VOID TIME_ApiDeLayUs(USHORT usTime)
     }
 }
 
-void DRV_LedInit()
+void BSP_LedInit()
 {
     GPIO_InitTypeDef  GPIO_InitStructure;
 
@@ -69,9 +69,11 @@ void DRV_LedInit()
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
     GPIO_Init(GPIOC, &GPIO_InitStructure);    
+
+	GPIOC->BRR = GPIO_Pin_13;
 }
 
-void DRV_LedCtrl(ULONG ulNo, ULONG ulSw)
+void BSP_ApiLedCtrl(ULONG ulNo, ULONG ulSw)
 {
     if (ulSw == PUB_ENABLE)
     {
