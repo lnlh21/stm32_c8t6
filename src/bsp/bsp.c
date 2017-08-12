@@ -18,7 +18,355 @@
 
 ******************************************************************************/
 #include "vos.h"
+#include "ucos_ii.h"
 #include "stm32f10x.h"
+#include "bsp.h"
+#include <stdio.h>
+
+#define BOARD_TYPE  0
+
+#if DESC("GPIO")
+VOID BSP_GpioInit()
+{
+    GPIO_InitTypeDef  GPIO_InitStructure;
+
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3 | GPIO_Pin_4;
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP; 
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IPU; 
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+	GPIO_SetBits(GPIOA, GPIO_Pin_4);
+}
+
+VOID BSP_GpioSet(ULONG ulDevId, ULONG ulSw)
+{
+	if (BSP_GPIO_OUT_2401_CE == ulDevId)
+	{
+		if (ulSw)
+		{
+			GPIO_SetBits(GPIOA, GPIO_Pin_3);
+		}
+		else
+		{
+			GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+		}
+	}
+	else if (BSP_GPIO_OUT_2401_CSN == ulDevId)
+	{
+		if (ulSw)
+		{
+			GPIO_SetBits(GPIOA, GPIO_Pin_4);
+		}
+		else
+		{
+			GPIO_ResetBits(GPIOA, GPIO_Pin_4);
+		}
+	}
+}
+
+ULONG BSP_GpioRead(ULONG ulDevId)
+{
+    if (BSP_GPIO_IN_2401_IRQ == ulDevId)
+    {
+		return GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_2);
+    }
+}
+
+#endif
+
+#if DESC("CPU延时")
+/*****************************************************************************
+ 函 数 名  : TIME_ApiDeLayMs
+ 功能描述  : 延时函数，大概为毫秒级，不精确
+ 输入参数  : USHORT usTime  
+ 输出参数  : 无
+ 返 回 值  : 
+ 调用函数  : 
+ 被调函数  : 
+ 
+ 修改历史      :
+  1.日    期   : 2013年10月10日
+    作    者   : linhao
+    修改内容   : 新生成函数
+
+*****************************************************************************/
+VOID BSP_ApiDeLayMs(USHORT usTime)
+{
+    ULONG i;
+    ULONG j;
+    
+    for (i = 0; i < usTime; i++)
+    {
+        for(j = 0; j < 12000; j++)
+        {
+            __asm ( "NOP" );
+        }
+    }
+}
+
+/*****************************************************************************
+ 函 数 名  : TIME_ApiDeLayUs
+ 功能描述  : 延时函数，大概为毫秒级，不精确
+ 输入参数  : USHORT usTime  
+ 输出参数  : 无
+ 返 回 值  : 
+ 调用函数  : 
+ 被调函数  : 
+ 
+ 修改历史      :
+  1.日    期   : 2013年10月10日
+    作    者   : linhao
+    修改内容   : 新生成函数
+
+*****************************************************************************/
+VOID BSP_ApiDeLayUs(USHORT usTime)
+{
+    ULONG i;
+    ULONG j;
+    
+    for (i = 0; i < usTime; i++)
+    {
+        for(j = 0; j < 120; j++)
+        {
+            __asm ( "NOP" );
+        }
+    }
+}
+
+#endif
+
+#if DESC("键盘")
+void BSP_KeyInit()
+{
+    GPIO_InitTypeDef  GPIO_InitStructure;
+    
+    /* key */
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3 | GPIO_Pin_8;
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING; 
+
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    
+    /*
+         if(0 == GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3))
+        {
+            if(w == 0)
+            {
+                w = 1;
+            }
+            else
+            {
+                w = 0;
+            }
+            printf("\r\n PIN 0");
+            buf[0] = 0x06;
+            buf[1] = w;
+            //USB_SIL_Write(0x81, buf, 2);  
+            //SetEPTxValid(1);
+            
+            for(i = 0; i < 500000; i++);
+            {
+                for(j = 0; j < 2000000; j++);
+            }
+            
+        }
+        
+    }
+    */
+}
+
+#endif
+
+#if DESC("定时器")
+#if 0
+void TIM3_DMA_Config(void)
+{
+
+        DMA_InitTypeDef DMA_InitStructure;
+
+    	DMA_DeInit(DMA1_Channel2);
+
+        DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)TIM2_CCR2_Address;     
+        DMA_InitStructure.DMA_MemoryBaseAddr = (u32)LED_BYTE_Buffer;
+        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;  
+        DMA_InitStructure.DMA_BufferSize = 66;
+        DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable; 
+        DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable; 
+        DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;  
+        DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+        DMA_InitStructure.DMA_Priority = DMA_Priority_High;  
+        DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+		
+        DMA_Init(DMA1_Channel2, &DMA_InitStructure);       
+        DMA_Cmd (DMA1_Channel2,ENABLE); 
+
+        //TIM_DMACmd(TIM3, TIM_DMA_Update, ENABLE);
+        //DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
+}
+
+
+void Timer2_init(void)
+{
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef  TIM_OCInitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    /* GPIOA Configuration: TIM3 Channel 1 as alternate function push-pull */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    /* Compute the prescaler value */
+    /* Time base configuration */
+    TIM_TimeBaseStructure.TIM_Period = 29; // 800kHz 
+    TIM_TimeBaseStructure.TIM_Prescaler = 2;
+    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+ 
+    /* PWM1 Mode configuration: Channel3 */
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCInitStructure.TIM_Pulse = 0;
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+    TIM_OC2Init(TIM2, &TIM_OCInitStructure);
+	
+    /* configure DMA */
+    /* TIM3 CC1 DMA Request enable */
+	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);
+	TIM_ARRPreloadConfig(TIM2, ENABLE);
+	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+    TIM_DMACmd(TIM2, TIM_DMA_Update, ENABLE);
+
+	TIM3_DMA_Config();
+}
+#endif
+#endif
+
+#if DESC("FLASH")
+
+/*****************************************************************************
+ 函 数 名  : FLASH_ApiSaveData
+ 功能描述  : FLASH模块写入数据
+ 输入参数  : ULONG ulFlashAddr  
+             UCHAR *pucSavebuf  
+             ULONG ulLen        
+ 输出参数  : 无
+ 返 回 值  : 
+ 调用函数  : 
+ 被调函数  : 
+ 
+ 修改历史      :
+  1.日    期   : 2013年9月17日
+    作    者   : linhao
+    修改内容   : 新生成函数
+
+*****************************************************************************/
+ULONG FLASH_ApiSaveData(ULONG ulFlashAddr, UCHAR *pucSavebuf, ULONG ulLen)
+{
+    ULONG ulPageStart;
+    ULONG ulPageEnd;
+    ULONG ulAddr;
+    ULONG ulLenTemp;
+    
+    /* 地址合法性检查 */
+#if 0
+    if ((FLASH_API_DATA_ADDR_START > ulFlashAddr)
+        || (FLASH_API_DATA_ADDR_END < ulFlashAddr)
+        || (FLASH_API_DATA_ADDR_END < (ulFlashAddr + ulLen)))
+    {
+        return PUB_ERR;
+    }
+#endif
+
+    __disable_irq();
+
+    /* 解锁FLASH */
+    FLASH_Unlock();
+    
+    /* 计算要擦除的块 */
+    ulPageStart = FLASH_API_GET_PAGE_ADDR(ulFlashAddr);
+    ulPageEnd   = FLASH_API_GET_PAGE_ADDR(ulFlashAddr + ulLen);
+
+    printf("%08x,%08x", ulPageStart, ulPageStart);
+    /* 擦除FLASH */
+    for (ulAddr = ulPageStart; ulAddr <= ulPageEnd; ulAddr+=FLASH_API_PAGE_SIZE)
+    {
+        printf("\r\n Flash E %08x", ulAddr);
+        FLASH_ErasePage(ulAddr);
+    }
+
+    /* 编程FLASH */
+    ulAddr = ulFlashAddr;
+    for (ulLenTemp = 0; ulLenTemp < ulLen; ulLenTemp+=2)
+    {
+        FLASH_ProgramHalfWord(ulAddr, *(USHORT*)(pucSavebuf + ulLenTemp));
+        ulAddr+=2;
+    }
+    
+    /* 锁FLASH */
+    FLASH_Lock();
+
+    __enable_irq();
+
+    return PUB_OK;
+}
+
+
+/*****************************************************************************
+ 函 数 名  : FLASH_ApiReadData
+ 功能描述  : FLASH模块读取数据
+ 输入参数  : ULONG ulFlashAddr  
+             UCHAR *pucReadbuf  
+             ULONG ulLen        
+ 输出参数  : 无
+ 返 回 值  : 
+ 调用函数  : 
+ 被调函数  : 
+ 
+ 修改历史      :
+  1.日    期   : 2013年9月17日
+    作    者   : linhao
+    修改内容   : 新生成函数
+
+*****************************************************************************/
+ULONG FLASH_ApiReadData(ULONG ulFlashAddr, UCHAR *pucReadbuf, ULONG ulLen)
+{
+#if 0
+    /* 地址合法性检查 */
+    if ((FLASH_API_DATA_ADDR_START > ulFlashAddr)
+        || (FLASH_API_DATA_ADDR_END < ulFlashAddr)
+        || (FLASH_API_DATA_ADDR_END < (ulFlashAddr + ulLen)))
+    {
+        return PUB_ERR;
+    }
+#endif
+
+    /* 解锁FLASH */
+    FLASH_Unlock();
+
+    /* 读取 */
+    memcpy(pucReadbuf, (VOID *)ulFlashAddr, ulLen);
+
+    /* 锁FLASH */
+    FLASH_Lock();
+
+    return PUB_OK;
+}
+
+#endif
+
 #if DESC("中断")
 ULONG BSP_InterruptInit()
 {
@@ -72,7 +420,17 @@ ULONG BSP_InterruptInit()
 void BSP_LedInit()
 {
     GPIO_InitTypeDef  GPIO_InitStructure;
+#if 1 == BOARD_TYPE
+	/* Configure the GPIO_LED pin */
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP; 
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIOB->BRR = GPIO_Pin_12;
+
+#else
     /* Configure the GPIO_LED pin */
     GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP; 
@@ -81,24 +439,43 @@ void BSP_LedInit()
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	GPIOC->BRR = GPIO_Pin_13;
+#endif
 }
 
 void BSP_ApiLedCtrl(ULONG ulNo, ULONG ulSw)
 {
+#if 1 == BOARD_TYPE
     if (ulSw == PUB_ENABLE)
     {
         if (ulNo == 0)
         {
-            GPIOC->BSRR = GPIO_Pin_13;
+            GPIO_ResetBits(GPIOB, GPIO_Pin_12);
         }
     }
     else if (ulSw == PUB_DISABLE)
     {
         if (ulNo == 0)
         {
-            GPIOC->BRR = GPIO_Pin_13;
+            GPIO_SetBits(GPIOB, GPIO_Pin_12);
         }
     }
+#else
+	if (ulSw == PUB_ENABLE)
+	{
+		if (ulNo == 0)
+		{
+			GPIO_ResetBits(GPIOC, GPIO_Pin_13);
+		}
+	}
+	else if (ulSw == PUB_DISABLE)
+	{
+		if (ulNo == 0)
+		{
+			GPIO_SetBits(GPIOC, GPIO_Pin_13);
+		}
+	}
+
+#endif
 }
 
 #endif
@@ -123,13 +500,6 @@ ULONG BSP_SpiInit()
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-    
-    GPIO_SetBits(GPIOA, GPIO_Pin_4);
-
     /* SPI CONFIG */
     SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
     SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
@@ -153,7 +523,7 @@ UCHAR BSP_ApiSpiRead(ULONG ulDevId)
     while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
     
     /* Send SPI1 data */
-    SPI_I2S_SendData(SPI1, byte);
+    SPI_I2S_SendData(SPI1, 0xff);
 
     /* Wait to receive a byte */
     while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
@@ -182,6 +552,29 @@ UCHAR BSP_ApiSpiWrite(ULONG ulDevId, UCHAR ucData)
 #endif
 
 #if DESC("UART")
+
+#ifdef __GNUC__
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
+PUTCHAR_PROTOTYPE
+{
+    /* 往串口写入 */
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
+    }
+  
+    /* 发送数据到USART2 */
+    USART_SendData(USART1, (uint8_t) ch);
+
+    return ch;
+}
+
+
 /*****************************************************************************
  函 数 名  : DRV_UsartInit
  功能描述  : 串口初始化
@@ -266,6 +659,9 @@ VOID BSP_ApiInit()
     GPIO_InitTypeDef GPIO_InitStructure;
 	I2C_InitTypeDef I2C_InitStructure;
 
+	/* 初始化 */
+	SystemInit();
+
 	/* 各电源模块的开启 */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM2 | 
 		                   RCC_APB1Periph_I2C2 | RCC_AHBPeriph_DMA1,  ENABLE);
@@ -281,10 +677,16 @@ VOID BSP_ApiInit()
     
     /* 初始化灯 */
     BSP_LedInit();
-
+    
     /* 初始化串口 */
     BSP_UartInit();
-   
+
+	/* 初始化GPIO */
+	BSP_GpioInit();
+
+	/* 初始化SPI */
+	BSP_SpiInit();
+	
     /* 初始化中断 */
     BSP_InterruptInit();
 }

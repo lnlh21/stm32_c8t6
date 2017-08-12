@@ -23,8 +23,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
-#include "public_def.h"
-#include "drv_usart.h"
+#include "vos.h"
+#include "bsp.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{

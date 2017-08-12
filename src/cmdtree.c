@@ -105,11 +105,6 @@ CMD_S g_stCmdDisplayGroup[] =
      CMD_FUN(CMD_FUN_ShowMsg),
     },
     {
-     "mpu6050",
-     "查询系统信息",
-     CMD_FUN(ShowMpu6050),
-    },
-    {
      "cpu",
      "显示CPU命令",
      SUB_CMD(g_stCmdDisplayCpu),
