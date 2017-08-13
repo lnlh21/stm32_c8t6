@@ -18,6 +18,13 @@
 ******************************************************************************/
 #ifndef __DRV_INIT_H__
 #define __DRV_INIT_H__
+
+#define BOARD_TYPE_OLD 1 
+#define BOARD_TYPE_NEW 2 
+
+
+#define BOARD_TYPE  BOARD_TYPE_OLD
+
 enum
 {
 	BSP_GPIO_OUT_2401_CE,

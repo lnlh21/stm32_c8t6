@@ -301,6 +301,7 @@
           <state>$PROJ_DIR$\..\</state>
           <state>$PROJ_DIR$\..\..\</state>
           <state>$PROJ_DIR$\..\..\src</state>
+          <state>$PROJ_DIR$\..\..\src\bsp</state>
           <state>$PROJ_DIR$\..\..\src\driver</state>
           <state>$PROJ_DIR$\..\..\src\Eth</state>
           <state>$PROJ_DIR$\..\..\src\Eth\stm32</state>
@@ -337,7 +338,7 @@
         </option>
         <option>
           <name>CCOptLevel</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCOptStrategy</name>
@@ -346,7 +347,7 @@
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CompilerMisraRules98</name>
@@ -1855,51 +1856,6 @@
     </settings>
   </configuration>
   <group>
-    <name>Driver</name>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_flash.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_flash.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_init.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_init.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_interrupt.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_interrupt.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_spi.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_spi.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_usart.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_usart.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_usb.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_usb.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_util.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\driver\drv_util.h</name>
-    </file>
-  </group>
-  <group>
     <name>Lib</name>
     <group>
       <name>CMSIS</name>
@@ -1952,39 +1908,6 @@
         <name>$PROJ_DIR$\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</name>
       </file>
     </group>
-    <group>
-      <name>usb</name>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\otgd_fs_cal.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\otgd_fs_dev.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\otgd_fs_int.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\otgd_fs_pcd.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_core.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_init.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_int.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_mem.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_regs.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_sil.c</name>
-      </file>
-    </group>
   </group>
   <group>
     <name>UCOS</name>
@@ -2031,46 +1954,34 @@
   <group>
     <name>User</name>
     <group>
-      <name>usb</name>
+      <name>bsp</name>
       <file>
-        <name>$PROJ_DIR$\..\..\src\usb\hw_config.c</name>
+        <name>$PROJ_DIR$\..\..\src\bsp\bsp.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\src\usb\hw_config.h</name>
+        <name>$PROJ_DIR$\..\..\src\bsp\stm32f10x_it.c</name>
+      </file>
+    </group>
+    <group>
+      <name>drv</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\src\drv\drv_nrf24l01.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\src\usb\platform_config.h</name>
+        <name>$PROJ_DIR$\..\..\src\drv\drv_nrf24l01.h</name>
       </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_conf.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_desc.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_desc.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_endp.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_istr.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_istr.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_prop.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_prop.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_pwr.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\usb\usb_pwr.h</name>
-      </file>
+    </group>
+    <group>
+      <name>vos</name>
+      <group>
+        <name>cmd</name>
+        <file>
+          <name>$PROJ_DIR$\..\..\src\vos\cmd\vos_cmd.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\src\vos\cmd\vos_cmd.h</name>
+        </file>
+      </group>
     </group>
     <file>
       <name>$PROJ_DIR$\..\..\src\cmdtree.c</name>
@@ -2078,30 +1989,6 @@
     <file>
       <name>$PROJ_DIR$\..\..\src\main.c</name>
     </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\public_def.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\stm32f10x_conf.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\stm32f10x_it.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\src\stm32f10x_it.h</name>
-    </file>
-  </group>
-  <group>
-    <name>VOS</name>
-    <group>
-      <name>cmd</name>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\vos\cmd\vos_cmd.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\src\vos\cmd\vos_cmd.h</name>
-      </file>
-    </group>
   </group>
   <file>
     <name>$PROJ_DIR$\..\..\src\main.h</name>

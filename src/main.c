@@ -8,7 +8,8 @@
 #if DESC("任务")
 static   OS_STK      AppTaskStartStk[APP_TASK_START_STK_SIZE];
 static   OS_STK      TaskLedStk[APP_TASK_START_STK_SIZE];
-static   OS_STK      Task2401Stk[APP_TASK_START_STK_SIZE];
+static   OS_STK      Task2401RxStk[APP_TASK_START_STK_SIZE];
+static   OS_STK      Task2401TxStk[APP_TASK_START_STK_SIZE];
 
 static void TaskLed(void *p_arg)
 {
@@ -22,9 +23,10 @@ static void TaskLed(void *p_arg)
 }
 
 UCHAR ucRxBuf[32];
-static void Task2401(void *p_arg)
+UCHAR ucTxBuf[32];
+
+static void Task2401Rx(void *p_arg)
 {
-#if 0
 	DRV_NRF24L01_RX_Mode();
 
 	for(;;)
@@ -39,39 +41,59 @@ static void Task2401(void *p_arg)
 			{
 				BSP_ApiLedCtrl(BSP_LED_0, 0);
 			}
-		}
-	}
-#else
-	DRV_NRF24L01_TX_Mode();
 
+			if (1 == ucRxBuf[1])
+			{
+                ucTxBuf[0] = ucRxBuf[0];
+				ucTxBuf[1] = 2;
+				DRV_NRF24L01_TX_Mode();
+				DRV_NRF24L01_TxPkt(ucTxBuf);
+				DRV_NRF24L01_RX_Mode();
+			}
+
+			OSTimeDly(10);
+		}
+        
+        OSTimeDly(10);
+	}
+}
+
+static void Task2401Tx(void *p_arg)
+{       
 	for(;;)
 	{
-	    ucRxBuf[0] = ((ucRxBuf[0] + 1) % 2);
-		if (VOS_OK == DRV_NRF24L01_TxPkt(ucRxBuf))
+	    ucTxBuf[0] = ((ucTxBuf[0] + 1) % 2);
+		ucTxBuf[1] = 1;
+
+        DRV_NRF24L01_TX_Mode();
+		OSTimeDly(5);
+                
+		if (VOS_OK == DRV_NRF24L01_TxPkt(ucTxBuf))
 		{
-			if (ucRxBuf[0])
-			{
-				BSP_ApiLedCtrl(BSP_LED_0, 1);
-			}
-			else
-			{
-				BSP_ApiLedCtrl(BSP_LED_0, 0);
-			}
-
+           printf("\r\n ok");
 		}
-		OSTimeDly(100);
+        else
+        {
+           printf("\r\n err");
+        }
+ 
+		DRV_NRF24L01_RX_Mode();
+		OSTimeDly(300);
 	}
-
-#endif
 }
+
 
 
 static void AppTaskStart(void *p_arg)
 {
      //新建任务  
     //OSTaskCreate(TaskLed, (void *)0, TaskLedStk + APP_DEFAULT_TASK_SIZE - 1, 1);
-	OSTaskCreate(Task2401, (void *)0, Task2401Stk + APP_DEFAULT_TASK_SIZE - 1, 2);
-	
+
+	OSTaskCreate(Task2401Rx, (void *)0, Task2401RxStk + APP_DEFAULT_TASK_SIZE - 1, 2);
+#if (BOARD_TYPE_OLD == BOARD_TYPE)
+	OSTaskCreate(Task2401Tx, (void *)0, Task2401TxStk + APP_DEFAULT_TASK_SIZE - 1, 3);
+#endif 
+
 	OSStatInit();
 
     while(1)  
@@ -123,6 +145,7 @@ int main(void)
 			BSP_ApiDeLayMs(50);
 		}
     }
+	DRV_NRF24L01_Init();
         
 	OSInit();
 
@@ -140,3 +163,4 @@ int main(void)
 }
 
 #endif
+
