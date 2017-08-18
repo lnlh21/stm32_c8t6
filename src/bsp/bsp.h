@@ -23,7 +23,7 @@
 #define BOARD_TYPE_NEW 2 
 
 
-#define BOARD_TYPE  BOARD_TYPE_OLD
+#define BOARD_TYPE  BOARD_TYPE_NEW
 
 enum
 {
