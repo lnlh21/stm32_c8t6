@@ -19,11 +19,12 @@
 #ifndef __DRV_INIT_H__
 #define __DRV_INIT_H__
 
-#define BOARD_TYPE_OLD 1 
-#define BOARD_TYPE_NEW 2 
+#define BOARD_TYPE_MAINBOARD   1
+#define BOARD_TYPE_SUB1        2 
+#define BOARD_TYPE_SUB2        3 
 
 
-#define BOARD_TYPE  BOARD_TYPE_OLD
+#define BOARD_TYPE  BOARD_TYPE_MAINBOARD
 
 enum
 {

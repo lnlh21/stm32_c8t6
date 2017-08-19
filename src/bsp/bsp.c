@@ -418,7 +418,7 @@ ULONG BSP_InterruptInit()
 void BSP_LedInit()
 {
     GPIO_InitTypeDef  GPIO_InitStructure;
-#if (BOARD_TYPE_NEW == BOARD_TYPE)
+#if (BOARD_TYPE_MAINBOARD == BOARD_TYPE)
 	/* Configure the GPIO_LED pin */
 	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_12;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP; 
@@ -442,7 +442,7 @@ void BSP_LedInit()
 
 void BSP_ApiLedCtrl(ULONG ulNo, ULONG ulSw)
 {
-#if (BOARD_TYPE_NEW == BOARD_TYPE)
+#if (BOARD_TYPE_MAINBOARD == BOARD_TYPE)
     if (ulSw == PUB_ENABLE)
     {
         if (ulNo == 0)

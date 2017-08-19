@@ -22,13 +22,19 @@
 #include "bsp.h"
 #include "drv_nrf24l01.h"
 
-#if (BOARD_TYPE_NEW == BOARD_TYPE)
-const UCHAR g_aucTxAddr[DRV_NRF24L01_TX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x00}; //发送地址
-const UCHAR g_aucRxAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x01}; //接收地址
-#else
-const UCHAR g_aucTxAddr[DRV_NRF24L01_TX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x01}; //发送地址
-const UCHAR g_aucRxAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x00}; //接收地址
-#endif
+UCHAR g_aucTxAddr[DRV_NRF24L01_TX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x01}; //发送地址
+const UCHAR g_aucBcAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0xFF}; //接收地址
+
+#if (BOARD_TYPE_MAINBOARD == BOARD_TYPE)
+const UCHAR g_aucMyAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0xfe}; //接收地址
+#elif (BOARD_TYPE_SUB1 == BOARD_TYPE)
+const UCHAR g_aucMyAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x01}; //接收地址
+#elif (BOARD_TYPE_SUB2 == BOARD_TYPE)
+const UCHAR g_aucMyAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x02}; //接收地址
+#elif (BOARD_TYPE_SUB3 == BOARD_TYPE)
+const UCHAR g_aucMyAddr[DRV_NRF24L01_RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x03}; //接收地址
+#endif 
+
 
 #if DESC("寄出器操作")
 
@@ -155,9 +161,6 @@ UCHAR DRV_NRF24L01_TxPkt(UCHAR *txbuf)
  	/* 拉低CE */
  	BSP_GpioSet(BSP_GPIO_OUT_2401_CE, 0);
 
-	/* 写TX节点地址 */
-  	DRV_NRF24L01_WriteBuf(DRV_NRF24L01_WRITE_REG | DRV_NRF24L01_TX_ADDR, (UCHAR*)g_aucTxAddr, DRV_NRF24L01_TX_ADR_WIDTH);
-
 	/* 写数据到TX BUF  32个字节 */
   	DRV_NRF24L01_WriteBuf(DRV_NRF24L01_WR_TX_PLOAD, txbuf, DRV_NRF24L01_TX_PLOAD_WIDTH);
 
@@ -230,8 +233,9 @@ void DRV_NRF24L01_RX_Mode(void)
 	BSP_GpioSet(BSP_GPIO_OUT_2401_CE, 0);
 
 	/* 设置TX节点地址,主要为了使能ACK */
-  	DRV_NRF24L01_WriteBuf(DRV_NRF24L01_WRITE_REG | DRV_NRF24L01_RX_ADDR_P1, (UCHAR*)g_aucRxAddr, DRV_NRF24L01_TX_ADR_WIDTH);
-
+  	DRV_NRF24L01_WriteBuf(DRV_NRF24L01_WRITE_REG | DRV_NRF24L01_RX_ADDR_P1, (UCHAR*)g_aucMyAddr, DRV_NRF24L01_TX_ADR_WIDTH);
+    DRV_NRF24L01_WriteBuf(DRV_NRF24L01_WRITE_REG | DRV_NRF24L01_RX_ADDR_P2, (UCHAR*)g_aucMyAddr, DRV_NRF24L01_TX_ADR_WIDTH);
+	
 	/* 使能通道1的接收地址 */
   	DRV_NRF24L01_WriteReg(DRV_NRF24L01_WRITE_REG | DRV_NRF24L01_EN_RXADDR, 0x02);
 
@@ -243,16 +247,19 @@ void DRV_NRF24L01_RX_Mode(void)
 
 	/* CE为高,进入接收模式 */
 	BSP_GpioSet(BSP_GPIO_OUT_2401_CE, 1);
-}						 
+}		
+
 //该函数初始化NRF24L01到TX模式
 //设置TX地址,写TX数据宽度,设置RX自动应答的地址,填充TX发送数据,选择RF频道,波特率和LNA HCURR
 //PWR_UP,CRC使能
 //当CE变高后,即进入RX模式,并可以接收数据了		   
 //CE为高大于10us,则启动发送.	 
-VOID DRV_NRF24L01_TX_Mode(VOID)
+VOID DRV_NRF24L01_TX_Mode(UCHAR ucNodId)
 {														 
     /* 拉低CE */
 	BSP_GpioSet(BSP_GPIO_OUT_2401_CE, 0);
+
+	g_aucTxAddr[4] = ucNodId;
 
 	/* 写TX节点地址 */
   	DRV_NRF24L01_WriteBuf(DRV_NRF24L01_WRITE_REG | DRV_NRF24L01_TX_ADDR, (UCHAR*)g_aucTxAddr, DRV_NRF24L01_TX_ADR_WIDTH);

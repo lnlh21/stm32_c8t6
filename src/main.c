@@ -24,6 +24,7 @@ static void TaskLed(void *p_arg)
 
 UCHAR ucRxBuf[32];
 UCHAR ucTxBuf[32];
+extern const UCHAR g_aucMyAddr[];
 
 static void Task2401Rx(void *p_arg)
 {
@@ -33,7 +34,7 @@ static void Task2401Rx(void *p_arg)
 	{
 		if (VOS_OK == DRV_NRF24L01_RxPkt(ucRxBuf))
 		{
-			if (ucRxBuf[0])
+			if (ucRxBuf[4])
 			{
 				BSP_ApiLedCtrl(BSP_LED_0, 1);
 			}
@@ -42,11 +43,16 @@ static void Task2401Rx(void *p_arg)
 				BSP_ApiLedCtrl(BSP_LED_0, 0);
 			}
 
-			if (1 == ucRxBuf[1])
+			if (1 == ucRxBuf[3])
 			{
-                ucTxBuf[0] = ucRxBuf[0];
-				ucTxBuf[1] = 2;
-				DRV_NRF24L01_TX_Mode();
+		        ucTxBuf[0] = ucRxBuf[1];   //dmac
+				ucTxBuf[1] = g_aucMyAddr[4];
+				ucTxBuf[2] = 0;    //len	
+				ucTxBuf[3] = 2;    //cmd						
+                ucTxBuf[4] = ucRxBuf[4];
+				ucTxBuf[5] = 0;
+
+				DRV_NRF24L01_TX_Mode(0xfe);
 				DRV_NRF24L01_TxPkt(ucTxBuf);
 				DRV_NRF24L01_RX_Mode();
 			}
@@ -59,13 +65,21 @@ static void Task2401Rx(void *p_arg)
 }
 
 static void Task2401Tx(void *p_arg)
-{       
+{    
+    ULONG ulCount;   
+	ULONG ulAddr = 0;
 	for(;;)
 	{
-	    ucTxBuf[0] = ((ucTxBuf[0] + 1) % 2);
-		ucTxBuf[1] = 1;
+		ulCount++;
+		ulAddr = (ulAddr+1)%2;
+	    ucTxBuf[0] = ulAddr + 1;    //dmac		
+		ucTxBuf[1] = g_aucMyAddr[4];   //smac
+		ucTxBuf[2] = 0;    //len		
+		ucTxBuf[3] = 1;    //cmd
+	    ucTxBuf[4] = (ulCount % 4)/2;   //data
+	    ucTxBuf[5] = 0;    //crc
 
-        DRV_NRF24L01_TX_Mode();
+        DRV_NRF24L01_TX_Mode(ulAddr + 1);
 		OSTimeDly(5);
                 
 		if (VOS_OK == DRV_NRF24L01_TxPkt(ucTxBuf))
@@ -90,7 +104,7 @@ static void AppTaskStart(void *p_arg)
     //OSTaskCreate(TaskLed, (void *)0, TaskLedStk + APP_DEFAULT_TASK_SIZE - 1, 1);
 
 	OSTaskCreate(Task2401Rx, (void *)0, Task2401RxStk + APP_DEFAULT_TASK_SIZE - 1, 2);
-#if (BOARD_TYPE_OLD == BOARD_TYPE)
+#if (BOARD_TYPE_MAINBOARD == BOARD_TYPE)
 	OSTaskCreate(Task2401Tx, (void *)0, Task2401TxStk + APP_DEFAULT_TASK_SIZE - 1, 3);
 #endif 
 
