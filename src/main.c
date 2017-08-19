@@ -43,7 +43,7 @@ static void Task2401Rx(void *p_arg)
 				BSP_ApiLedCtrl(BSP_LED_0, 0);
 			}
 
-			if (1 == ucRxBuf[3])
+			if ((1 == ucRxBuf[3]) && (0xff !=ucRxBuf[0]))
 			{
 		        ucTxBuf[0] = ucRxBuf[1];   //dmac
 				ucTxBuf[1] = g_aucMyAddr[4];
@@ -66,20 +66,25 @@ static void Task2401Rx(void *p_arg)
 
 static void Task2401Tx(void *p_arg)
 {    
-    ULONG ulCount;   
-	ULONG ulAddr = 0;
+    ULONG ulCount = 0;   
+	UCHAR aucAddr[8] = {1,1,2,2,3,3,0xff,0xff};
+	UCHAR aucSw[8] = {1,0,1,0, 1,0,1,0};
 	for(;;)
 	{
 		ulCount++;
-		ulAddr = (ulAddr+1)%2;
-	    ucTxBuf[0] = ulAddr + 1;    //dmac		
+		if (ulCount == 8)
+		{
+			ulCount = 0;
+		}
+		
+	    ucTxBuf[0] = aucAddr[ulCount] ;    //dmac		
 		ucTxBuf[1] = g_aucMyAddr[4];   //smac
 		ucTxBuf[2] = 0;    //len		
 		ucTxBuf[3] = 1;    //cmd
-	    ucTxBuf[4] = (ulCount % 4)/2;   //data
+	    ucTxBuf[4] = aucSw[ulCount];   //data
 	    ucTxBuf[5] = 0;    //crc
 
-        DRV_NRF24L01_TX_Mode(ulAddr + 1);
+        DRV_NRF24L01_TX_Mode(ucTxBuf[0]);
 		OSTimeDly(5);
                 
 		if (VOS_OK == DRV_NRF24L01_TxPkt(ucTxBuf))

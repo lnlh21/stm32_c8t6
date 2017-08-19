@@ -22,9 +22,10 @@
 #define BOARD_TYPE_MAINBOARD   1
 #define BOARD_TYPE_SUB1        2 
 #define BOARD_TYPE_SUB2        3 
+#define BOARD_TYPE_SUB3        4 
 
 
-#define BOARD_TYPE  BOARD_TYPE_MAINBOARD
+#define BOARD_TYPE  BOARD_TYPE_SUB3
 
 enum
 {
